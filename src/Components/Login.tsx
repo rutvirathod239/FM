@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/Components/ui/input";
 import { Button } from "@/components/ui/button";
 import { loginApi } from "@/lib/apiFunctions";
 import Link from "next/link";

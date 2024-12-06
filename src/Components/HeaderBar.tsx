@@ -8,7 +8,7 @@ import {
     DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuTrigger,
-  } from "@/components/ui/dropdown-menu"
+  } from "@/Components/ui/dropdown-menu"
 import { Button } from "./ui/button";
 import { LogOut } from "lucide-react"
 import { useRouter } from "next/navigation";

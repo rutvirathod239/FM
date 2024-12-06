@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = `mongodb+srv://root:root@cluster0.ljbrwoe.mongodb.net/flight_management?retryWrites=true&w=majority&appName=Cluster0`;
+const MONGODB_URI = process.env.MONGODB_URI
 
 const connectToDatabase = async () => {
     

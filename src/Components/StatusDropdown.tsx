@@ -4,7 +4,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "../Components/ui/dropdown-menu";
+} from "@/Components/ui/dropdown-menu";
 import ConfirmationDialog from "./ConfirmationDialog";
 
 interface StatusDropdownProps {

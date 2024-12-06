@@ -1,11 +1,9 @@
 "use client"
-import { generateFlights } from "@/lib/generateFlights";
 import React, { useState, useEffect } from "react";
 import {
     ColumnDef,
     ColumnFiltersState,
     SortingState,
-    VisibilityState,
     flexRender,
     getCoreRowModel,
     getFilteredRowModel,
@@ -20,9 +18,9 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table"
+} from "@/Components/ui/table"
 import { ArrowUpDown } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/Components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getFlights, updateFlightStatus, updateStatus } from "@/lib/apiFunctions";
 import StatusDropdown from "./StatusDropdown";

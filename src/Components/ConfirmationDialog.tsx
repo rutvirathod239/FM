@@ -8,12 +8,12 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from "../components/ui/alert-dialog";
+} from "@/Components/ui/alert-dialog";
 
 interface ConfirmationDialogProps {
     isOpen: boolean
-    onClose: () => {}
-    onConfirm: () => {}
+    onClose: () => void
+    onConfirm: () => void
 }
 
 const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({isOpen, onClose, onConfirm}) => {
