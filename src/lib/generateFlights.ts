@@ -12,19 +12,18 @@ export async function generateFlights() {
         const currentCount = existingFlights.length;
 
         if (currentCount >= 400) {
-        console.log('Sufficient flights are already in the database.');
-        return;
+            console.log('Sufficient flights are already in the database.');
+            return;
         }
         console.log(`Current flight count: ${currentCount}. Adding ${400 - currentCount} new flights...`);
         for (const flight of existingFlights) {
-            generatedFlightNumbers.add(flight.flightNumber); // Track existing flight numbers
+            generatedFlightNumbers.add(flight.flightNumber);
         }
         const flightsToGenerate = 400 - currentCount;
 
         for (let i = 0; i < flightsToGenerate; i++) {
             let flightNumber: string;
 
-            // Generate a unique flight number
             do {
                 flightNumber = `FL${Math.floor(1000 + Math.random() * 9000)}`;
             } while (generatedFlightNumbers.has(flightNumber));

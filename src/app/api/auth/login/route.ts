@@ -47,9 +47,10 @@ export async function POST(req: Request) {
         });
 
     } catch (error: unknown) {
-        console.log("🚀 ~ POST ~ error:", error);
-        return NextResponse.json(
-            { status: 500, message: "Internal server error" }
-        );
+        if (error instanceof Error) {
+            return NextResponse.json(
+                { status: 500, message: "Internal server error" }
+            );
+        }
     }
 }

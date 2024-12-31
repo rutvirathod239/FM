@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import {
     ColumnDef,
-    ColumnFiltersState,
     SortingState,
     flexRender,
     getCoreRowModel,
@@ -24,7 +23,21 @@ import { Input } from "@/Components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getFlights, updateFlightStatus, updateStatus } from "@/lib/apiFunctions";
 import StatusDropdown from "./StatusDropdown";
-import Pusher from 'pusher-js';
+import { io, Socket } from "socket.io-client";
+import Spinner from "./Spinner";
+
+let socket: Socket | undefined; ;
+
+interface Flight {
+    _id: string;
+    name: string;
+    status: string;
+    flightNumber: string
+    origin: string
+    destination: string
+    scheduledTime: string
+    type: string
+}
 
 export type FlightsColumns = {
     flightNumber: string
@@ -36,53 +49,64 @@ export type FlightsColumns = {
 }
 const FlightList = () => {
     const [loading, setLoading] = useState(false);
-    const [flights, setFlights] = useState([]);
+    const [flights, setFlights] = useState<Flight[]>([]);
     const [sorting, setSorting] = useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [filterText, setFilterText] = useState("");
-    const [status, setStatus] = useState([]);
     const userInfo = localStorage.getItem('user');
     const parsedUserInfo = userInfo && JSON.parse(userInfo);
 
     const handleGenerateFlights = async () => {
         setLoading(true);
         try {
-          const response = await fetch('/api/generate-flights', { method: 'POST' });
-          const data = await response.json();
-          console.log("data", data);          
+          await fetch('/api/generate-flights', { method: 'POST' });          
         } catch (error) {
           console.error('Error:', error);
         } finally {
           setLoading(false);
         }
     };
-
-    useEffect(() => {
-        const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY || '', {
-          cluster: process.env.NEXT_PUBLIC_PUSHER_APP_CLUSTER || '',
-        });
     
-        const channel = pusher.subscribe('flight-status-channel');
+    useEffect(() => {
+        fetch("/api/socket");
+    }, []);
+    
+    useEffect(() => {
+        socket = io("http://localhost:3000", {
+            path: "/api/socket",
+        });
+        socket.on("connect", () => {
+            console.log("Connected to Socket.io server.");
+        });
+        socket.on("flight-update", (data) => {
+            setFlights((prevFlights) => {
+                const updatedFlights = prevFlights.map((flight) =>
+                  flight._id === data.flightId
+                    ? { ...flight, status: data.status }
+                    : flight
+                );
         
-        channel.bind('status-update', (data: any) => {
-          console.log('Flight Status Update:', data);
-          setFlights((prevStatus: any) => {
-            const updatedStatus = prevStatus.map((flight: any) => 
-              flight._id === data._id ? { ...flight, status: data.status } : flight
-            );
-            return updatedStatus;
-          });
+                if (JSON.stringify(updatedFlights) !== JSON.stringify(prevFlights)) {
+                  return updatedFlights;
+                }
+        
+                return prevFlights;
+            });
         });
     
         return () => {
-          pusher.unsubscribe('flight-status-channel');
+          socket?.disconnect();
         };
     }, []);
-    
 
     useEffect(() => {
+        setLoading(true);
         const flightdata = getFlights();
-        flightdata.then((data) => setFlights(data));
+        flightdata
+        .then((data) => {
+            setFlights(data);
+            setLoading(false)
+        })
+        .catch(() => setLoading(false));
         updateStatus();
     }, []);
 
@@ -99,7 +123,7 @@ const FlightList = () => {
         Delayed: 'yellow',
     };
     
-    const columns: ColumnDef<FlightsColumns>[] = [        
+    const columns: ColumnDef<Flight>[] = [        
         {
           accessorKey: "flightNumber",
           header: "flightNumber",
@@ -129,7 +153,7 @@ const FlightList = () => {
                 )
             },
             cell: ({ row }) => {
-                const scheduledTime:any = row.getValue("scheduledTime");
+                const scheduledTime: string = row.getValue("scheduledTime");
                 const date: Date = new Date(scheduledTime);
                 const options: Intl.DateTimeFormatOptions = {
                     day: '2-digit',
@@ -163,7 +187,7 @@ const FlightList = () => {
                 )
             },
             cell: ({ row }) => {
-                const departureTime:any = row.getValue("departureTime");
+                const departureTime: string = row.getValue("departureTime");
                 const date: Date = new Date(departureTime);
                 const options: Intl.DateTimeFormatOptions = {
                     day: '2-digit',
@@ -197,7 +221,7 @@ const FlightList = () => {
                 )
             },
             cell: ({ row }) => {
-                const arrivalTime:any = row.getValue("arrivalTime");
+                const arrivalTime: string = row.getValue("arrivalTime");
                 const date: Date = new Date(arrivalTime);
                 const options: Intl.DateTimeFormatOptions = {
                     day: '2-digit',
@@ -225,7 +249,6 @@ const FlightList = () => {
             accessorKey: "status",
             header: () => <div>Status</div>,
             cell: ({ row }) => {
-                const statusOptions = ["Scheduled", "In-flight", "Cancelled", "Delayed"];
                 const currentStatus = row.getValue<string>("status");
                 const flightId =  row.original?._id;
             
@@ -265,7 +288,6 @@ const FlightList = () => {
         data: flights,
         columns,
         onSortingChange: setSorting,
-        onColumnFiltersChange: setColumnFilters,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         getSortedRowModel: getSortedRowModel(),
@@ -281,11 +303,13 @@ const FlightList = () => {
     }, [table?.getState()?.pagination]);
 
     const paginationState = table.getState().pagination;
-    const currentPage = paginationState.pageIndex + 1; // Pages are 0-based
+    const currentPage = paginationState.pageIndex + 1;
     const totalPages = Math.ceil(table.getFilteredRowModel().rows.length / paginationState.pageSize);
 
     return (<>
-        <div className="w-full">
+        {loading == true ?  
+            <Spinner />
+        : <div className="w-full">
             <div className="flex items-center py-4">
                 <Input
                     placeholder="Search all columns..."
@@ -368,7 +392,7 @@ const FlightList = () => {
                 </div>
 
             </div>
-        </div>
+        </div>}
     </>)
 }
 export default FlightList;

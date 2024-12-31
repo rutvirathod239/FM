@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/db';
 import FlightModel from '@/models/flightModel';
-import pusher from '@/lib/pusher';
 
 export async function GET() {
     await connectToDatabase();

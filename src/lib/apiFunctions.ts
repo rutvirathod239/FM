@@ -3,7 +3,6 @@ import { toast } from 'react-toastify';
 export const registerApi = async (data: any, router: any, reset: any) => {
     try {
         const response = await axios.post("/api/auth/register", data);
-        console.log("Registration successful:", response.data);
         if (response.data.status == 200 || response.data.status == 201) {
             localStorage.setItem('user', JSON.stringify(response.data.user));
             router.replace('/dashboard');
@@ -20,7 +19,6 @@ export const registerApi = async (data: any, router: any, reset: any) => {
 export const loginApi = async (data: any, router: any, reset: any) => {
     try {
         const response = await axios.post("/api/auth/login", data);
-        console.log("Login successful:", response.data);
         if (response.data.status == 200 || response.data.status == 201) {
             localStorage.setItem('user', JSON.stringify(response.data.user));
             router.replace('/dashboard');

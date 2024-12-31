@@ -7,7 +7,6 @@ This project is a flight management dashboard that tracks the status of commerci
 - TypeScript
 - MongoDB
 - Shadcn UI & Tailwind CSS
-- Docker (for deployment)
 
 ## Features:
 1. Flight List Display
@@ -16,9 +15,9 @@ This project is a flight management dashboard that tracks the status of commerci
 4. Search and Filter Functionality
 5. Sign up for manager users
 6. User Authentication & Authorization
+7. Configured redis and socketio for real time status updates
 
 ## Setup:
 1. Clone the repository.
-2. Set up environment variables for MongoDB and Pusher.
-3. Run `docker-compose up` to start the services.
-4. Access the dashboard at `http://localhost:3000`.
+2. Set up environment variables for MongoDB.
+3. Access the dashboard at `http://localhost:3000`.
