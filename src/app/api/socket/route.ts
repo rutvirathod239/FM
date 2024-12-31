@@ -9,9 +9,9 @@ const globalForIO = global as unknown as { _httpServer?: HTTPServer; _io?: Socke
 export async function GET() {
     try {
         if (!globalForIO._io) {
-            if (!globalForIO._httpServer) {
-                throw new Error("HTTP server not found. Ensure you have configured the server correctly.");
-            }
+            // if (!globalForIO._httpServer) {
+            //     throw new Error("HTTP server not found. Ensure you have configured the server correctly.");
+            // }
 
             io = new SocketIOServer(globalForIO._httpServer, {
                 path: "/api/socket",

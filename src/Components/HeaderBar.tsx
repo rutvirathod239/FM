@@ -1,7 +1,7 @@
 "use client"
 import React from "react";
 import Image from "next/image";
-import Flight  from "../image/flight.png"
+import Flight from "../assets/image/flight.png"
 import {
     DropdownMenu,
     DropdownMenuContent,

@@ -23,10 +23,8 @@ import { Input } from "@/Components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getFlights, updateFlightStatus, updateStatus } from "@/lib/apiFunctions";
 import StatusDropdown from "./StatusDropdown";
-import { io, Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import Spinner from "./Spinner";
-
-let socket: Socket | undefined; ;
 
 interface Flight {
     _id: string;
@@ -47,7 +45,10 @@ export type FlightsColumns = {
     status: string
     type: string
 }
-const FlightList = () => {
+interface FlightListProps {
+    socket: Socket;
+}
+const FlightList: React.FC<FlightListProps> = ({ socket }) => {
     const [loading, setLoading] = useState(false);
     const [flights, setFlights] = useState<Flight[]>([]);
     const [sorting, setSorting] = useState<SortingState>([])
@@ -70,14 +71,11 @@ const FlightList = () => {
         fetch("/api/socket");
     }, []);
     
-    useEffect(() => {
-        socket = io("http://localhost:3000", {
-            path: "/api/socket",
-        });
+    useEffect(() => {        
         socket.on("connect", () => {
             console.log("Connected to Socket.io server.");
         });
-        socket.on("flight-update", (data) => {
+        socket.on("flight-update", (data: { flightId: string; status: string; }) => {
             setFlights((prevFlights) => {
                 const updatedFlights = prevFlights.map((flight) =>
                   flight._id === data.flightId
@@ -111,7 +109,7 @@ const FlightList = () => {
     }, []);
 
     useEffect(() => {
-        if (flights.length < 400) {
+        if (flights && flights?.length < 400) {
             handleGenerateFlights();
         }
     }, [flights])
